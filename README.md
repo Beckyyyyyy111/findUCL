@@ -35,7 +35,6 @@ Deep links for demos: `/?b=student-centre&f=2`, `/?b=marshgate`
 
 ## Features
 
-**See it**
 - **Map controls**: left-drag rotates the view; right-drag or Shift + drag moves the map; scroll zooms towards the cursor; arrow keys move (after clicking the map). The **⟳ Rotate / ✋ Move** toggle at the bottom swaps what a left-drag does (handy on trackpads). Touch: one finger rotates (or moves in Move mode), two fingers move and zoom.
 - **Real 3D campus** for **Bloomsbury** and **UCL East**, built from OpenStreetMap: every building at its real footprint and height (≈1,500 buildings), real streets, squares and rivers. UCL buildings have procedural facades (stone/brick windows, concrete ribbon windows, glass curtain walls), real massing from OSM building parts (Senate House's stepped tower, the IOE's terraces, the Wilkins dome) and hand-modelled details (the Portico's columns and pediment, the Cruciform's central tower, the ArcelorMittal Orbit). Their **roofs show the crowd level** (green → red); other buildings are muted.
 - **Every UCL building is marked**: besides the 15 study buildings above, ~60 other UCL teaching/department buildings OSM lists as UCL-operated (Chadwick, Darwin, Medical Sciences, Malet Place Engineering, the Gordon Square and Woburn Square department houses…) are drawn in UCL style, searchable and clickable with a generic crowd estimate; their labels appear when you zoom in. UCL halls of residence get a purple roof and a 🛏 label.
