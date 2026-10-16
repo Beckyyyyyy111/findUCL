@@ -99,14 +99,3 @@ Deep links for demos: `/?b=student-centre&f=2`, `/?b=marshgate`
 | `server/uclapi.js` | UCL API Workspaces adapter |
 
 Positions are real within each campus; UCL East is drawn 2.5 km east of Bloomsbury instead of the real ~8 km. Map data © OpenStreetMap contributors (ODbL).
-
-## 2-minute demo script
-
-1. "I want to go to the Student Centre." Search *sc*. It's red: packed and chatty.
-2. The 3D inside view shows B2 to floor 4: the ground floor and Mezzanine are packed, while a quiet floor upstairs still has seats.
-3. Click floor 2: zones, noise, charging, water and booking info, each with its source.
-4. Tap **📣 Noisy here**: the floor's noise jumps (you see before → after) for everyone.
-5. Set **🔔 alert me under 40%**, and ★ save it.
-6. Set "I'm near: Roberts Building": rankings now show 🚶 walking minutes.
-7. Ask Gemini: "I have a lecture in Roberts at 3, need somewhere silent until then". It picks a nearby quiet floor and highlights it.
-8. Close: "With a UCL API token, the colours come from real desk sensors. Every student report and noise reading makes it better for everyone."
