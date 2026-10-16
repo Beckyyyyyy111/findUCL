@@ -2,3 +2,5 @@ node_modules/
 .env
 # server's shared reports/check-ins (not the map data in public/data)
 /data/
+# demo videos (too big for git)
+*.mp4

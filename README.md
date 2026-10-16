@@ -2,6 +2,10 @@
 
 > Find a quiet seat at UCL before you walk there.
 
+## 👉 [Try it: finducl.onrender.com](https://finducl.onrender.com/)
+
+Works on desktop and phone. Free hosting: if nobody has opened it for a while, the first load takes 30–60 seconds to wake up.
+
 **Find a seat before you walk there.** A 3D map of UCL (Bloomsbury + UCL East) that shows how busy each building is, floor by floor. Click or search a building (e.g. *Student Centre*) to see its floors in 3D, spot the quiet one, or skip the building if it's packed. Ask the AI (Claude or Google Gemini, set by an environment variable) for a recommendation in plain English.
 
 Track: **Better Student Life**, Claude Campus Hackathon (UCL Entrepreneurs × Claude Builder Club UCL)
