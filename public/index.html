@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#4b3cf0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>UCL SpaceFinder</title>
+  <meta name="description" content="See how busy every UCL building is, floor by floor, before you walk there." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234b3cf0'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='white' stroke-width='3'/%3E%3Cpath d='M16 8a8 8 0 0 1 0 16z' fill='white'/%3E%3C/svg%3E" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">◐</span>
+      <div>
+        <h1>UCL SpaceFinder</h1>
+        <p>Find a seat before you walk there</p>
+      </div>
+    </div>
+    <div class="segmented" id="campus-switch" role="tablist" aria-label="Campus">
+      <button data-campus="bloomsbury" class="active">Bloomsbury</button>
+      <button data-campus="east"><span class="long">UCL </span>East</button>
+    </div>
+    <span id="source-pill" class="source-pill">Simulated</span>
+    <div class="time-ctrl">
+      <label for="time-slider">Time</label>
+      <input id="time-slider" type="range" min="0" max="12" step="1" value="0" />
+      <span id="time-label" class="time-label">Now</span>
+    </div>
+    <button id="theme-btn" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">☾</button>
+  </header>
+
+  <main class="layout">
+    <div class="search search-wrap">
+      <input id="search" type="search" placeholder="Search a building… e.g. Student Centre" autocomplete="off" enterkeyhint="search" />
+      <ul id="search-results" class="search-results" hidden></ul>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+      <button class="drawer-handle" id="drawer-handle" type="button" aria-expanded="false" aria-controls="sidebar">
+        <span class="grip"></span>
+        <span class="dh-text">✦ Ask <span class="ai-name">Claude</span> · Quietest spots</span>
+        <span class="dh-arrow">▲</span>
+      </button>
+
+      <section class="card ask-card">
+        <h2>✦ Ask <span class="ai-name">Claude</span> where to go</h2>
+        <form id="rec-form" class="rec-form">
+          <input id="rec-input" placeholder="e.g. Quiet study for 2 hours" autocomplete="off" />
+          <button class="btn primary" type="submit">Ask</button>
+        </form>
+        <div class="chips rec-chips">
+          <button class="chip" type="button">Quiet study for 2 hours</button>
+          <button class="chip" type="button">Group of 4, need to talk for 1 hour</button>
+          <button class="chip" type="button">Quiet seat with charging and water</button>
+          <button class="chip" type="button">Silent spot until my 3pm lecture</button>
+        </div>
+        <div id="rec-result" class="rec-result" hidden></div>
+      </section>
+
+      <section class="card">
+        <h2>Quietest spots <span id="spots-when">right now</span></h2>
+        <ol id="spots" class="spots"></ol>
+      </section>
+
+      <details class="card me-card" id="me-card">
+        <summary><h2>Me <span id="me-summary">set your location</span></h2></summary>
+        <label class="field">
+          <span>I'm near</span>
+          <div class="row">
+            <select id="me-location">
+              <option value="">Not set</option>
+            </select>
+            <button id="me-gps" class="btn" title="Use my GPS location">📍 GPS</button>
+          </div>
+        </label>
+        <label class="field">
+          <span>My day <small class="muted">(<span class="ai-name">Claude</span> uses this)</small></span>
+          <textarea id="me-timetable" rows="2" placeholder="e.g. Lecture in Roberts 15:00–16:00, free after 17:00"></textarea>
+        </label>
+        <div class="field">
+          <span>★ Favourites</span>
+          <ul id="favs" class="mini-list"><li class="muted">Tap ★ on a building or floor to save it.</li></ul>
+        </div>
+        <div class="field">
+          <span>🔔 Alerts <small class="muted">(while this tab is open)</small></span>
+          <ul id="alerts" class="mini-list"><li class="muted">Open a floor and set "alert me when quiet".</li></ul>
+        </div>
+      </details>
+
+      <section class="card legend">
+        <h2>Legend</h2>
+        <div class="legend-bar"></div>
+        <div class="legend-row"><span>Quiet</span><span>Moderate</span><span>Packed</span></div>
+        <p class="muted small" id="source-note">Numbers combine UCL desk sensors (when available), a time-of-day model, and live reports from students.</p>
+      </section>
+    </aside>
+
+    <section id="map" class="map"></section>
+    <div class="map-tools">
+      <div class="segmented drag-mode" role="group" aria-label="Left-drag does">
+        <button data-mode="rotate" class="active" title="Left-drag rotates the view">⟳ Rotate</button>
+        <button data-mode="move" title="Left-drag moves the map">✋ Move</button>
+      </div>
+      <div class="map-hint" aria-hidden="true">
+        <span class="mouse rotate-tip">🖱 Drag to rotate · Right-drag or Shift + drag to move · Scroll to zoom · ← ↑ → ↓ to move</span>
+        <span class="mouse move-tip">🖱 Drag to move · Right-drag or Shift + drag to rotate · Scroll to zoom · ← ↑ → ↓ to move</span>
+        <span class="touch">☝ One finger to rotate (or move in Move mode) · Two fingers to move &amp; zoom</span>
+      </div>
+    </div>
+    <div class="osm-credit">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</div>
+
+    <aside id="detail" class="detail" hidden>
+      <div class="detail-actions">
+        <button id="d-fav" class="icon-btn" title="Save building" aria-label="Save building">☆</button>
+        <button id="detail-close" class="icon-btn" aria-label="Close">✕</button>
+      </div>
+      <h2 id="d-name"></h2>
+      <div class="badges">
+        <span id="d-busy" class="badge"></span>
+        <span id="d-noise" class="badge"></span>
+        <span id="d-walk" class="badge ghost" hidden></span>
+        <span id="d-live" class="badge live" hidden>● LIVE sensors</span>
+        <span id="d-reports" class="badge ghost" hidden></span>
+      </div>
+      <div id="d-verdict" class="verdict"></div>
+      <a id="d-book" class="book-link" target="_blank" rel="noopener" hidden>📅 Book a space ↗</a>
+
+      <div class="bv-wrap">
+        <div id="building-view" class="building-view"></div>
+        <button id="d-explore" class="explore-btn" type="button" title="Open the big floor explorer">⤢ Expand</button>
+      </div>
+      <button id="d-explore2" class="btn wide explore-cta" type="button">⤢ Open floor explorer: big 3D + floor plan</button>
+      <p class="muted small hint">Drag to rotate · click a floor</p>
+
+      <ul id="d-floors" class="floors"></ul>
+
+      <div id="d-report" class="report-bar"></div>
+
+      <div id="d-floor-detail" class="floor-detail" hidden></div>
+    </aside>
+  </main>
+
+  <section id="explorer" class="explorer" hidden aria-label="Floor explorer">
+    <header class="fx-head">
+      <div class="fx-title">
+        <h2 id="fx-title"></h2>
+        <p id="fx-sub" class="muted small"></p>
+      </div>
+      <div id="fx-tabs" class="fx-tabs" role="tablist" aria-label="Floors"></div>
+      <button id="fx-close" class="icon-btn" aria-label="Close floor explorer">✕</button>
+    </header>
+    <div class="fx-body">
+      <div class="fx-3d-wrap">
+        <div id="fx-3d" class="fx-3d"></div>
+        <p class="muted small fx-hint">3D · drag to rotate, scroll to zoom, click a floor</p>
+      </div>
+      <div class="fx-side">
+        <div class="fx-plan-head"><h3 id="fx-plan-title"></h3><span class="muted small">Floor plan (schematic, real outline)</span></div>
+        <div id="fx-plan" class="fx-plan"></div>
+        <div class="fx-legend">
+          <span><i class="lg" style="background:#8b5e3c"></i>Shelves</span>
+          <span><i class="lg" style="background:#c8a27a"></i>Desks/tables</span>
+          <span><i class="lg lg-glass"></i>Glass pod</span>
+          <span><i class="lg" style="background:#f3f0ea"></i>Benches/tables</span>
+          <span><i class="lg round" style="background:#334155"></i>Person</span>
+          <span><i class="lg core"></i>Lift &amp; stairs</span>
+          <span>⚡ Charging · 💧 Water</span>
+        </div>
+        <div id="fx-facts" class="fx-facts"></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <button id="chat-fab" class="chat-fab">✦ Ask <span class="ai-name">Claude</span></button>
+  <section id="chat" class="chat" hidden>
+    <header>
+      <b>✦ Ask <span class="ai-name">Claude</span> where to go</b>
+      <button id="chat-close" class="icon-btn" aria-label="Close chat">✕</button>
+    </header>
+    <div id="chat-log" class="chat-log">
+      <div class="msg bot">Hi! Tell me what you need, e.g. <i>"silent spot near Gower St for 2 hours"</i> or <i>"somewhere my group of 4 can talk"</i>. I can see live crowd levels for every floor, where you are, and your day.</div>
+    </div>
+    <div class="chips">
+      <button class="chip">Find me a silent spot</button>
+      <button class="chip">My group of 4 needs to talk</button>
+      <button class="chip">Find me a study buddy</button>
+      <button class="chip">Where should I go before my next lecture?</button>
+    </div>
+    <form id="chat-form" class="chat-form">
+      <input id="chat-input" placeholder="Ask anything about where to study…" autocomplete="off" />
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

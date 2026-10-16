@@ -1,0 +1,16 @@
+{
+  "name": "ucl-spacefinder",
+  "version": "1.0.0",
+  "description": "See how busy UCL buildings are, floor by floor, before you walk there.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "build:map": "node scripts/build-map.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.134.0"
+  }
+}

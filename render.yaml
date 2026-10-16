@@ -1,0 +1,18 @@
+# One-click deploy on Render (https://render.com): New → Blueprint → pick this repo.
+# Free plan: sleeps after ~15 min idle (first visit then takes ~30–60 s), and
+# shared reports reset when it restarts.
+services:
+  - type: web
+    name: ucl-spacefinder
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/config
+    envVars:
+      - key: AI_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false # paste your key in the Render dashboard, never in the repo
+      - key: ANTHROPIC_API_KEY
+        sync: false # optional: set it and AI_PROVIDER=claude to use Claude instead
