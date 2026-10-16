@@ -144,7 +144,7 @@ function checkAlerts() {
       const text = `${b.name} floor ${a.floor} is now ${pct}% full — under your ${a.threshold}% alert.`;
       toast(`🔔 ${esc(text)}`, 10000);
       try {
-        if (Notification.permission === 'granted') new Notification('SpaceFinder', { body: text });
+        if (Notification.permission === 'granted') new Notification('FindUCL', { body: text });
       } catch {
         /* notifications unsupported */
       }
@@ -466,7 +466,7 @@ function renderFloorDetail(b, s) {
       now
         ? `
     <div class="fd-section">
-      <h4>Study buddies <span class="muted small">${others.length} SpaceFinder user${
+      <h4>Study buddies <span class="muted small">${others.length} FindUCL user${
         others.length === 1 ? '' : 's'
       } here</span></h4>
       ${

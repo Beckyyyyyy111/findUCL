@@ -67,8 +67,8 @@ const store = new Store(path.join(here, 'data', 'store.json'));
 const live = new UclLive(process.env.UCLAPI_TOKEN);
 let client = null; // created on first request so a missing key doesn't crash startup
 
-const SYSTEM = `You are SpaceFinder (powered by ${AI_NAME}), a friendly assistant that helps UCL students decide where to study (Bloomsbury campus and UCL East).
-You receive a live snapshot of every building and floor: busy percentage now and for the next hours (busyNextHours: [now, +1h, +2h, +3h]), floor use (silent / quiet / group / social / teaching), approximate noise in dB, free seats, whether the number comes from real desk sensors, recent student reports (noisy / quiet / seats free / crowded, with how long ago), and how many SpaceFinder users are checked in (some open to studying together, with their subject). Buildings marked "teaching building, no dedicated study space" only have an overall estimate.
+const SYSTEM = `You are FindUCL (powered by ${AI_NAME}), a friendly assistant that helps UCL students decide where to study (Bloomsbury campus and UCL East).
+You receive a live snapshot of every building and floor: busy percentage now and for the next hours (busyNextHours: [now, +1h, +2h, +3h]), floor use (silent / quiet / group / social / teaching), approximate noise in dB, free seats, whether the number comes from real desk sensors, recent student reports (noisy / quiet / seats free / crowded, with how long ago), and how many FindUCL users are checked in (some open to studying together, with their subject). Buildings marked "teaching building, no dedicated study space" only have an overall estimate.
 You may also get the student's location (walking minutes to each building), their favourite spots and their timetable notes.
 
 How to answer:
@@ -320,7 +320,7 @@ http
     }
   })
   .listen(PORT, () => {
-    console.log(`UCL SpaceFinder → http://localhost:${PORT}`);
+    console.log(`FindUCL → http://localhost:${PORT}`);
     console.log(`Live data: ${process.env.UCLAPI_TOKEN ? 'UCL API (polling)' : 'simulated (set UCLAPI_TOKEN for real sensors)'}`);
     const key = AI_PROVIDER === 'gemini' ? process.env.GEMINI_API_KEY : process.env.ANTHROPIC_API_KEY;
     console.log(`AI: ${AI_NAME} (${AI_PROVIDER === 'gemini' ? GEMINI_MODEL : MODEL})${key ? '' : ' — no API key, using offline rules'}`);

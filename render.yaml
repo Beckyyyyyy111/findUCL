@@ -3,7 +3,7 @@
 # shared reports reset when it restarts.
 services:
   - type: web
-    name: ucl-spacefinder
+    name: finducl
     runtime: node
     plan: free
     buildCommand: npm install

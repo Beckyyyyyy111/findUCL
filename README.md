@@ -1,4 +1,6 @@
-# UCL SpaceFinder
+# FindUCL
+
+> Find a quiet seat at UCL before you walk there.
 
 **Find a seat before you walk there.** A 3D map of UCL (Bloomsbury + UCL East) that shows how busy each building is, floor by floor. Click or search a building (e.g. *Student Centre*) to see its floors in 3D, spot the quiet one, or skip the building if it's packed. Ask the AI (Claude or Google Gemini, set by an environment variable) for a recommendation in plain English.
 
@@ -31,9 +33,9 @@ Deep links for demos: `/?b=student-centre&f=5`, `/?b=marshgate`
 ## Put it online (public link)
 
 **Permanent link, free (Render):**
-1. Push this folder to a GitHub repo (`gh auth login`, then `gh repo create ucl-spacefinder --public --source . --push`).
+1. Push this folder to a GitHub repo (`gh auth login`, then `gh repo create finducl --public --source . --push`).
 2. On [render.com](https://render.com), sign in with GitHub → **New → Blueprint** → pick the repo. `render.yaml` sets everything up.
-3. When asked, paste your `GEMINI_API_KEY` (it stays in Render, never in the repo). You get `https://ucl-spacefinder.onrender.com` (or similar).
+3. When asked, paste your `GEMINI_API_KEY` (it stays in Render, never in the repo). You get `https://finducl.onrender.com` (or similar).
 4. Free plan: it sleeps after ~15 min idle (the next visit takes ~30–60 s to wake) and shared reports reset on restart.
 
 **Quick link for a demo (Cloudflare tunnel, free, no account):** see "On a phone" below. Only online while your computer runs it.
