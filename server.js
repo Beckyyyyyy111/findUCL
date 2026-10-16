@@ -17,6 +17,14 @@ import { Store } from './server/store.js';
 import { UclLive } from './server/uclapi.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
+
+// Load API keys from .env next to this file (git-ignored). Variables already set
+// in the environment win, so hosting dashboards like Render still take priority.
+try {
+  process.loadEnvFile(path.join(here, '.env'));
+} catch {
+  /* no .env file: fine */
+}
 const PUBLIC = path.join(here, 'public');
 const PORT = Number(process.env.PORT) || 3000;
 const MODEL = 'claude-opus-5-5';

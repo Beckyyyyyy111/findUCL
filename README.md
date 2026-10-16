@@ -11,7 +11,9 @@ npm install
 npm start          # → http://localhost:3000
 ```
 
-Optional environment variables (PowerShell: `$env:NAME="value"`, cmd: `set NAME=value`):
+Put your keys in a **`.env`** file next to `server.js` (copy `.env.example`; `.env` is git-ignored and loaded automatically at start). Environment variables set elsewhere, e.g. in Render, take priority.
+
+Available settings:
 
 | Variable | What it unlocks |
 |---|---|
