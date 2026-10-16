@@ -10,6 +10,7 @@
 
 import http from 'node:http';
 import fs from 'node:fs/promises';
+import zlib from 'node:zlib';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
@@ -284,13 +285,24 @@ async function handleApi(req, res, route) {
   return send(res, 404, { error: 'Not found' });
 }
 
+const gzCache = new Map();
+
 async function serveStatic(req, res) {
   const urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   const file = path.normalize(path.join(PUBLIC, urlPath === '/' ? 'index.html' : urlPath));
   if (!file.startsWith(PUBLIC)) return send(res, 403, 'Forbidden', 'text/plain');
   try {
     const data = await fs.readFile(file);
-    send(res, 200, data, MIME[path.extname(file)] || 'application/octet-stream');
+    const type = MIME[path.extname(file)] || 'application/octet-stream';
+    // gzip text assets (the 700 KB map shrinks ~5×), cached in memory per file.
+    if (/gzip/.test(req.headers['accept-encoding'] ?? '') && /text|json|javascript|svg/.test(type) && data.length > 1024) {
+      const key = `${file}|${data.length}`;
+      let gz = gzCache.get(key);
+      if (!gz) gzCache.set(key, (gz = zlib.gzipSync(data, { level: 6 })));
+      res.writeHead(200, { 'Content-Type': type, 'Content-Encoding': 'gzip', 'Vary': 'Accept-Encoding', 'Cache-Control': 'no-cache' });
+      return res.end(gz);
+    }
+    send(res, 200, data, type);
   } catch {
     send(res, 404, 'Not found', 'text/plain');
   }
