@@ -555,3 +555,4 @@ textarea { resize: vertical; }
   .segmented button { padding: 4px 7px; font-size: 11px; }
 }
 @media (max-width: 820px) { body.drawer-open .chat-fab, body.drawer-open .map-tools { display: none; } }
+.card h2 .ai-name, .drawer-handle .ai-name { color: inherit; font-weight: inherit; }

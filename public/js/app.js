@@ -980,7 +980,7 @@ async function recommend(question) {
       ${picked ? `<button class="btn wide" data-act="show">✦ Show ${esc(picked.b.name)}${data.target.floor ? ` · floor ${esc(data.target.floor)}` : ''}</button>` : ''}
       <p class="src">Based on what this page shows at ${hhmm(viewDate())}: crowd + forecast, noise, student reports${
         liveSource().source === 'uclapi' && !liveSource().error ? ', UCL desk sensors' : ''
-      }.${data.offline ? ` Offline rules (no ${AI_NAME} API key on the server).` : ''}</p>`;
+      }.${data.offline && !data.busy ? ` Offline rules (no ${AI_NAME} API key on the server).` : ''}</p>`;
     recResult.querySelector('.rec-reply').textContent = data.reply;
     recResult.querySelector('[data-act="show"]')?.addEventListener('click', () => applyPick(data.target));
   } catch (err) {

@@ -37,8 +37,34 @@ const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 const AI_NAME = AI_PROVIDER === 'gemini' ? 'Gemini' : 'Claude';
 
 // Gemini REST generateContent (https://ai.google.dev/api). Returns the reply text.
+// Gemini sometimes answers 503 "high demand" / 429 / 500. Retry once, then try the
+// other stable models before giving up, so a busy model doesn't break the demo.
+const GEMINI_FALLBACKS = ['gemini-3.6-flash', 'gemini-3.8-flash', 'gemini-3.1-flash-lite'];
+const RETRYABLE = new Set([429, 500, 502, 503, 504]);
 async function askGemini(system, messages) {
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
+  const models = [GEMINI_MODEL, ...GEMINI_FALLBACKS.filter((m) => m !== GEMINI_MODEL)];
+  let lastErr;
+  const deadline = Date.now() + 25_000; // never keep the student waiting longer than this
+  for (const model of models) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const left = deadline - Date.now();
+      if (left < 1500) throw Object.assign(lastErr ?? new Error('Gemini timed out'), { busy: true });
+      try {
+        return await askGeminiModel(model, system, messages, Math.min(20_000, left));
+      } catch (err) {
+        lastErr = err;
+        const retryable = RETRYABLE.has(err.status) || err.name === 'TimeoutError';
+        if (!retryable) throw err; // bad key, bad request: trying again won't help
+        console.warn(`Gemini ${model} busy (${err.status ?? err.name}), ${attempt === 0 ? 'retrying' : 'trying next model'}`);
+        if (attempt === 0) await new Promise((r) => setTimeout(r, 800));
+      }
+    }
+  }
+  throw Object.assign(lastErr ?? new Error('Gemini unavailable'), { busy: true });
+}
+
+async function askGeminiModel(model, system, messages, timeoutMs = 20_000) {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
     body: JSON.stringify({
@@ -46,7 +72,7 @@ async function askGemini(system, messages) {
       contents: messages.map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
       generationConfig: { maxOutputTokens: 1024, temperature: 0.4 },
     }),
-    signal: AbortSignal.timeout(30_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -188,7 +214,10 @@ async function handleAsk(req, res) {
     } catch (err) {
       if (err.status === 400 && /api key/i.test(err.message)) return send(res, 200, offlineAnswer(question, snapshot, me.campus));
       console.error('Gemini request failed:', err.message);
-      return send(res, err.status === 429 ? 429 : 502, { error: err.message });
+      // Every model busy: still give the student a recommendation, and say why.
+      const fallback = offlineAnswer(question, snapshot, me.campus);
+      fallback.reply = fallback.reply.replace(/ \(Offline rules:.*\)$/, '') + ' (Gemini is busy right now, so this is a rule-based pick from the live data.)';
+      return send(res, 200, { ...fallback, busy: true });
     }
   }
 
